@@ -1,0 +1,164 @@
+@model AutoGest.Models.OrdenReparacion
+@{ ViewData["Title"] = "Nueva Orden de Reparación"; }
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <h1>📋 Nueva Orden de Reparación</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-10">
+            <form asp-action="Create" id="ordenForm">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="card mb-3">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Información principal</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="VehiculoId" class="form-label fw-bold">🚗 Vehículo *</label>
+                                    <select asp-for="VehiculoId" class="form-select" id="vehiculoSelect" required></select>
+                                    <span asp-validation-for="VehiculoId" class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="MecanicoId" class="form-label fw-bold">🔧 Mecánico *</label>
+                                    <select asp-for="MecanicoId" class="form-select" id="mecanicoSelect" required></select>
+                                    <span asp-validation-for="MecanicoId" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label asp-for="FechaIngreso" class="form-label fw-bold">📅 Fecha de Ingreso *</label>
+                                    <input asp-for="FechaIngreso" type="date" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                                    <span asp-validation-for="FechaIngreso" class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label asp-for="FechaEgreso" class="form-label fw-bold">📅 Fecha de Egreso</label>
+                                    <input asp-for="FechaEgreso" type="date" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Estado" class="form-label fw-bold">Estado</label>
+                                    <select asp-for="Estado" class="form-select">
+                                        <option value="Pendiente">Pendiente</option>
+                                        <option value="En Reparación">En Reparación</option>
+                                        <option value="Terminado">Terminado</option>
+                                        <option value="Entregado">Entregado</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Descripcion" class="form-label fw-bold">📝 Descripción del problema *</label>
+                            <textarea asp-for="Descripcion" class="form-control" rows="3" maxlength="500" required></textarea>
+                            <span asp-validation-for="Descripcion" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="ManoDeObra" class="form-label fw-bold">💰 Mano de obra ($)</label>
+                            <input asp-for="ManoDeObra" type="number" step="0.01" min="0" class="form-control" id="manoObraInput" value="0" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-3">
+                    <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">🔩 Repuestos utilizados</h5>
+                        <button type="button" class="btn btn-sm btn-dark" onclick="agregarRepuesto()">➕ Agregar repuesto</button>
+                    </div>
+                    <div class="card-body">
+                        <div id="repuestosContainer"></div>
+                        <div class="alert alert-info mt-2" id="sinRepuestos">
+                            <em>No hay repuestos agregados.</em>
+                        </div>
+                        <div class="text-end">
+                            <h5>Total Repuestos: <span id="totalRepuestos">$0.00</span></h5>
+                            <h4>Total Orden: <span id="totalOrden" class="text-success">$0.00</span></h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <button type="submit" class="btn btn-success btn-lg">💾 Crear Orden</button>
+                    <a asp-action="Index" class="btn btn-secondary btn-lg">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(function () {
+            initSelect2('#vehiculoSelect', '@Url.Action("BuscarVehiculos", "Ordenes")', 'Buscar vehículo por patente o marca...');
+            initSelect2('#mecanicoSelect', '@Url.Action("BuscarMecanicos", "Ordenes")', 'Buscar mecánico...');
+            recalcularTotales();
+        });
+
+        let contadorRepuesto = 0;
+
+        function agregarRepuesto() {
+            contadorRepuesto++;
+            const div = document.createElement('div');
+            div.className = 'repuesto-row row mb-2 align-items-end';
+            div.innerHTML = `
+                <div class="col-md-6">
+                    <label class="form-label small">Repuesto</label>
+                    <select class="form-select repuesto-select" id="repSel_${contadorRepuesto}" name="repuestoIds" required></select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small">Cantidad</label>
+                    <input type="number" name="cantidades" class="form-control cantidad-input" min="1" value="1" onchange="recalcularTotales()" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">Subtotal</label>
+                    <input type="text" class="form-control subtotal-display" readonly value="$0.00" />
+                </div>
+                <div class="col-md-1">
+                    <button type="button" class="btn btn-danger w-100" onclick="$(this).closest('.repuesto-row').remove(); recalcularTotales();">✖</button>
+                </div>
+            `;
+            document.getElementById('repuestosContainer').appendChild(div);
+            document.getElementById('sinRepuestos').style.display = 'none';
+
+            initSelect2(`#repSel_${contadorRepuesto}`, '@Url.Action("BuscarRepuestos", "Ordenes")', 'Buscar repuesto...');
+            $(`#repSel_${contadorRepuesto}`).on('select2:select', function (e) {
+                const data = e.params.data;
+                const $row = $(this).closest('.repuesto-row');
+                $row.data('precio', data.precio || 0);
+                recalcularTotales();
+            });
+        }
+
+        function recalcularTotales() {
+            let totalRep = 0;
+            $('.repuesto-row').each(function () {
+                const precio = $(this).data('precio') || 0;
+                const cant = parseFloat($(this).find('.cantidad-input').val()) || 0;
+                const subtotal = precio * cant;
+                $(this).find('.subtotal-display').val('$' + subtotal.toFixed(2));
+                totalRep += subtotal;
+            });
+            $('#totalRepuestos').text('$' + totalRep.toFixed(2));
+            const mano = parseFloat($('#manoObraInput').val()) || 0;
+            $('#totalOrden').text('$' + (totalRep + mano).toFixed(2));
+        }
+
+        $('#manoObraInput').on('input', recalcularTotales);
+    </script>
+}

@@ -1,0 +1,50 @@
+@model AutoGest.Models.Vehiculo
+@{ ViewData["Title"] = "Detalles del Vehículo"; }
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="card-title mb-0">🚗 Detalles del Vehículo</h2>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(Model.Imagen))
+                    {
+                        <div class="text-center mb-3">
+                            <img src="@Model.Imagen" alt="Vehículo" style="max-width:300px;" class="rounded" />
+                        </div>
+                    }
+                    <dl class="row">
+                        <dt class="col-sm-4">ID:</dt><dd class="col-sm-8">@Model.Id</dd>
+                        <dt class="col-sm-4">Patente:</dt><dd class="col-sm-8"><strong>@Model.Patente</strong></dd>
+                        <dt class="col-sm-4">Marca:</dt><dd class="col-sm-8">@Model.Marca</dd>
+                        <dt class="col-sm-4">Modelo:</dt><dd class="col-sm-8">@Model.Modelo</dd>
+                        <dt class="col-sm-4">Año:</dt><dd class="col-sm-8">@Model.Anio</dd>
+                        <dt class="col-sm-4">Kilometraje:</dt><dd class="col-sm-8">@Model.Kilometraje.ToString("N0") km</dd>
+                        <dt class="col-sm-4">Color:</dt><dd class="col-sm-8">@(Model.Color ?? "No especificado")</dd>
+                        <dt class="col-sm-4">Cliente:</dt>
+                        <dd class="col-sm-8">
+                            @if (Model.Cliente != null)
+                            {
+                                <a asp-controller="Clientes" asp-action="Details" asp-route-id="@Model.Cliente.Id">
+                                    @Model.Cliente.NombreCompleto
+                                </a>
+                            }
+                            else { <span>—</span> }
+                        </dd>
+                    </dl>
+                </div>
+                <div class="card-footer">
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">✏️ Editar</a>
+                    <a asp-controller="Ordenes" asp-action="Index" class="btn btn-info">📋 Ver Órdenes</a>
+                    <a asp-action="Index" class="btn btn-secondary">📋 Volver</a>
+                    @if (User.IsInRole("Administrador"))
+                    {
+                        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">🗑️ Eliminar</a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

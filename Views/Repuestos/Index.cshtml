@@ -1,0 +1,70 @@
+@model IEnumerable<AutoGest.Models.Repuesto>
+@{ ViewData["Title"] = "Repuestos"; }
+
+<h1>📦 Repuestos</h1>
+<p><a asp-action="Create" class="btn btn-primary">➕ Crear Nuevo Repuesto</a></p>
+
+<form method="get" class="mb-3">
+    <div class="input-group">
+        <input type="text" name="search" class="form-control" placeholder="Buscar por código, descripción o proveedor..." value="@ViewBag.Search">
+        <button type="submit" class="btn btn-outline-secondary">Buscar</button>
+    </div>
+</form>
+
+<table class="table table-striped table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>Código</th>
+            <th>Descripción</th>
+            <th>Proveedor</th>
+            <th>Stock</th>
+            <th>Precio</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td><strong>@item.Codigo</strong></td>
+                <td>@item.Descripcion</td>
+                <td>@(item.Proveedor ?? "—")</td>
+                <td>
+                    @if (item.Stock <= 5)
+                    {
+                        <span class="badge bg-danger">@item.Stock (bajo)</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success">@item.Stock</span>
+                    }
+                </td>
+                <td>$@item.Precio.ToString("N2")</td>
+                <td>
+                    <div class="btn-group">
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">👁️</a>
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">✏️</a>
+                        @if (User.IsInRole("Administrador"))
+                        {
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">🗑️</a>
+                        }
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (ViewBag.TotalPaginas > 1)
+{
+    <nav>
+        <ul class="pagination">
+            @for (int i = 1; i <= ViewBag.TotalPaginas; i++)
+            {
+                <li class="page-item @(i == ViewBag.PaginaActual ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new { pagina = i, search = ViewBag.Search })">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}

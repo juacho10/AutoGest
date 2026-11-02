@@ -1,0 +1,114 @@
+@model AutoGest.Models.OrdenReparacion
+@{ ViewData["Title"] = "Detalles de Orden"; }
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-10">
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">📋 Orden #@Model.Id</h2>
+                    <span class="badge bg-light text-dark fs-6">@Model.Estado</span>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5>🚗 Vehículo</h5>
+                            <hr />
+                            @if (Model.Vehiculo != null)
+                            {
+                                <p><strong>Patente:</strong> @Model.Vehiculo.Patente</p>
+                                <p><strong>Marca/Modelo:</strong> @Model.Vehiculo.Marca @Model.Vehiculo.Modelo</p>
+                                <p><strong>Año:</strong> @Model.Vehiculo.Anio</p>
+                                <p><strong>Km:</strong> @Model.Vehiculo.Kilometraje.ToString("N0")</p>
+                                <p><strong>Cliente:</strong> @Model.Vehiculo.Cliente?.NombreCompleto</p>
+                            }
+                        </div>
+                        <div class="col-md-6">
+                            <h5>🔧 Mecánico asignado</h5>
+                            <hr />
+                            @if (Model.Mecanico != null)
+                            {
+                                <p><strong>Nombre:</strong> @Model.Mecanico.NombreCompleto</p>
+                                <p><strong>Email:</strong> @Model.Mecanico.Email</p>
+                            }
+                            <h5 class="mt-3">📅 Fechas</h5>
+                            <hr />
+                            <p><strong>Ingreso:</strong> @Model.FechaIngreso.ToString("dd/MM/yyyy")</p>
+                            <p><strong>Egreso:</strong> @(Model.FechaEgreso?.ToString("dd/MM/yyyy") ?? "Aún en taller")</p>
+                        </div>
+                    </div>
+
+                    <h5>📝 Descripción del problema</h5>
+                    <hr />
+                    <p>@Model.Descripcion</p>
+
+                    @if (Model.Detalles != null && Model.Detalles.Any())
+                    {
+                        <h5 class="mt-4">🔩 Repuestos utilizados</h5>
+                        <hr />
+                        <table class="table table-sm table-striped">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Repuesto</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio Unit.</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var d in Model.Detalles)
+                                {
+                                    <tr>
+                                        <td>@(d.Repuesto?.Codigo ?? "—")</td>
+                                        <td>@(d.Repuesto?.Descripcion ?? "—")</td>
+                                        <td>@d.Cantidad</td>
+                                        <td>$@d.PrecioUnitario.ToString("N2")</td>
+                                        <td>$@d.Subtotal.ToString("N2")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+
+                    <div class="row mt-4">
+                        <div class="col-md-6 offset-md-6">
+                            <table class="table table-bordered">
+                                <tr>
+                                    <th>Mano de obra</th>
+                                    <td class="text-end">$@Model.ManoDeObra.ToString("N2")</td>
+                                </tr>
+                                <tr>
+                                    <th>Total Repuestos</th>
+                                    <td class="text-end">$@((Model.MontoTotal - Model.ManoDeObra).ToString("N2"))</td>
+                                </tr>
+                                <tr class="table-success">
+                                    <th>Total Orden</th>
+                                    <td class="text-end"><strong>$@Model.MontoTotal.ToString("N2")</strong></td>
+                                </tr>
+                                <tr class="table-info">
+                                    <th>Total Pagado</th>
+                                    <td class="text-end">$@Model.TotalPagos.ToString("N2")</td>
+                                </tr>
+                                <tr class="table-warning">
+                                    <th>Saldo Pendiente</th>
+                                    <td class="text-end"><strong>$@Model.SaldoPendiente.ToString("N2")</strong></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">✏️ Editar</a>
+                    <a asp-controller="Pagos" asp-action="Index" asp-route-ordenId="@Model.Id" class="btn btn-info">💰 Ver Pagos</a>
+                    <a asp-controller="Pagos" asp-action="Create" asp-route-ordenId="@Model.Id" class="btn btn-success">➕ Registrar Pago</a>
+                    <a asp-action="Index" class="btn btn-secondary">📋 Volver</a>
+                    @if (User.IsInRole("Administrador"))
+                    {
+                        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">🗑️ Eliminar</a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

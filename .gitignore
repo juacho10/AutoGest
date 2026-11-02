@@ -1,0 +1,36 @@
+# Build
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+*.user
+*.suo
+.vs/
+
+# NuGet
+*.nupkg
+packages/
+
+# App settings locales (NUNCA subir credenciales)
+appsettings.Development.json
+appsettings.Production.json
+
+# Base de datos local
+*.sqlite
+*.sqlite3
+*.db
+
+# IDE
+.idea/
+*.swp
+
+# Logs
+*.log
+
+# Avatares locales (usamos Cloudinary)
+wwwroot/avatars/*
+!wwwroot/avatars/.gitkeep
+
+# Sistema
+.DS_Store
+Thumbs.db

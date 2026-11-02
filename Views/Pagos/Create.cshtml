@@ -1,0 +1,62 @@
+@model AutoGest.Models.Pago
+@{ ViewData["Title"] = "Cargar Pago"; }
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="card-title mb-0">💰 Cargar Nuevo Pago</h2>
+                </div>
+                <div class="card-body">
+                    @if (Model?.Orden != null)
+                    {
+                        <div class="alert alert-info">
+                            <strong>Orden #@Model.OrdenId</strong><br />
+                            <small>
+                                Total: $@Model.Orden.MontoTotal.ToString("N2") |
+                                Pagado: $@Model.Orden.TotalPagos.ToString("N2") |
+                                Saldo: $@Model.Orden.SaldoPendiente.ToString("N2")
+                            </small>
+                        </div>
+                    }
+
+                    <form asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                        <input type="hidden" asp-for="OrdenId" />
+
+                        <div class="form-group mb-3">
+                            <label asp-for="FechaPago" class="form-label fw-bold">📅 Fecha de Pago *</label>
+                            <input asp-for="FechaPago" type="date" class="form-control" required />
+                            <span asp-validation-for="FechaPago" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Importe" class="form-label fw-bold">💵 Importe *</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input asp-for="Importe" type="number" step="0.01" min="0.01" class="form-control" required />
+                            </div>
+                            <span asp-validation-for="Importe" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Concepto" class="form-label fw-bold">📝 Concepto *</label>
+                            <input asp-for="Concepto" class="form-control" placeholder="Ej: Seña, Pago parcial, Saldo final..." required />
+                            <span asp-validation-for="Concepto" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">💾 Guardar Pago</button>
+                            <a asp-action="Index" asp-route-ordenId="@Model?.OrdenId" class="btn btn-secondary btn-lg">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

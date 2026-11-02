@@ -1,0 +1,27 @@
+@model AutoGest.Models.OrdenReparacion
+@{ ViewData["Title"] = "Eliminar Orden"; }
+
+<h1>🗑️ Eliminar Orden #@Model.Id</h1>
+<h3>¿Está seguro de que desea eliminar esta orden?</h3>
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-3">Vehículo</dt><dd class="col-sm-9">@(Model.Vehiculo?.Descripcion ?? "—")</dd>
+        <dt class="col-sm-3">Mecánico</dt><dd class="col-sm-9">@(Model.Mecanico?.NombreCompleto ?? "—")</dd>
+        <dt class="col-sm-3">Fecha Ingreso</dt><dd class="col-sm-9">@Model.FechaIngreso.ToString("dd/MM/yyyy")</dd>
+        <dt class="col-sm-3">Estado</dt><dd class="col-sm-9">@Model.Estado</dd>
+        <dt class="col-sm-3">Monto Total</dt><dd class="col-sm-9">$@Model.MontoTotal.ToString("N2")</dd>
+        <dt class="col-sm-3">Descripción</dt><dd class="col-sm-9">@Model.Descripcion</dd>
+    </dl>
+
+    <div class="alert alert-danger">
+        <i class="fas fa-exclamation-triangle"></i>
+        <strong>¡Atención!</strong> Esta acción eliminará también todos los pagos y detalles asociados.
+    </div>
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Eliminar Definitivamente" class="btn btn-danger" />
+        <a asp-action="Index" class="btn btn-secondary">Volver</a>
+    </form>
+</div>
