@@ -11,7 +11,7 @@
 *.nupkg
 packages/
 
-# App settings locales (NUNCA subir credenciales)
+# App settings locales 
 appsettings.Development.json
 appsettings.Production.json
 
@@ -27,7 +27,7 @@ appsettings.Production.json
 # Logs
 *.log
 
-# Avatares locales (usamos Cloudinary)
+# Avatares locales 
 wwwroot/avatars/*
 !wwwroot/avatars/.gitkeep
 
