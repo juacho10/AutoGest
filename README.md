@@ -84,7 +84,7 @@ El modelo consta de 7 tablas: Cliente, Vehiculo, OrdenReparacion, DetalleReparac
 
 ## 💾 Base de Datos
 
-Script completo con datos de prueba: [`scripts/autogest_db.sql`](scripts/autogest_db.sql)
+Script completo con datos de prueba: [`script/autogest_db.sql`](script/autogest_db.sql)
 
 
 ┌─────────────┐          ┌──────────────┐          ┌────────────────────┐
